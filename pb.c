@@ -99,6 +99,16 @@ pb_t *receive_pb(int tid, int *sender)
 	
 }
 
+liste_pb* liste_pb_alloc(){
+	liste_pb* liste;
+
+	liste =  malloc(sizeof(liste_pb));
+	pb = pb_alloc();
+	next = NULL;
+	
+	return liste;
+}
+
 
 
 

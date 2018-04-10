@@ -292,4 +292,22 @@ point *point_merge_UH(point *pts1, point *pts2)
 	return pts1;
 }
 
+/*
+ * partitionne en nombre d'elements de points 
+ * retourne la deuxième partie de la liste
+ */
+point *point_cut_4(point* pts1,int nombre)
+{
+	point *cur,*prec;
+	int i;
+
+	cur = pts1;
+	for(i=0;i<nombre;i++)
+	{
+		prec = pts1;
+		pts1 = pts1->next;
+	}
+	prec->next = NULL;
+	return pts1;
+}
 
