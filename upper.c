@@ -24,17 +24,10 @@
  * % evince upper_hull.pdf
  */
 
-int arrondi_superieur(int nombre, int diviseur)
-{
-	if ( nombre%4 == 0)
-		return nombre/4;
-	else
-		return nombre/4 +1;
-}
 
 main(int argc, char **argv)
 {
-	point *pts;
+	point *pts,*temp;
 	pb_t* pb;
 	int taille;
 	int i;
@@ -52,10 +45,19 @@ main(int argc, char **argv)
 
 	ajout_pb(pbs,pb);
 
-	for(i=1;i < arrondi_superieur(taille,4) ; i++)
+	for(i=1;i < taille/4 ; i++)
 	{
-
+		temp = point_cut(pts,4);
+		pb = creation_pb(pts,i*4,i*4+3,PB_HULL);
+		pbs = ajout_pb(pbs,pb);
+		pts = temp;
 	}
+	if (pts != NULL)
+	{
+		pb = creation_pb(pts,(taille/4)*4,taille,PB_HULL);
+		pbs = ajout_pb(pbs,pb);
+	}
+	// creation et lancement des enfants
 
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */
