@@ -32,4 +32,5 @@ extern int point_nb();
 extern point *point_part();
 extern point *point_merge_UH();
 extern void upper_hull();
+point *point_cut(point* pts1,int nombre);
 

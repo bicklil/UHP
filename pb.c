@@ -103,12 +103,76 @@ liste_pb* liste_pb_alloc(){
 	liste_pb* liste;
 
 	liste =  malloc(sizeof(liste_pb));
-	pb = pb_alloc();
-	next = NULL;
+	liste->pb = pb_alloc();
+	liste->next = NULL;
 	
 	return liste;
 }
 
+liste_pb* ajout_pb(liste_pb* pbs,pb_t* pb)
+{
+	//TODO
+	liste_pb* temp = pbs;
+
+}
+
+pb_t* creation_pb(point* pts,int start, int end,int type)
+{
+	pb_t* pb;
+	int i;
+	point* temp = pts;
+	int taille = point_nb(pts);
+	pb = malloc(sizeof(pb_t));
+
+	pb->taille1 = taille*2;
+	pb->debut = start;
+	pb->fin = end;
+	pb->type = type;
+
+	pb->data1 = malloc(sizeof(int)*pb->taille1);
+	for(i=0;i<taille;i++)
+	{
+		pb->data1[i] = temp->x;
+		pb->data1[i+1] = temp->y;
+		temp = temp->next; 
+	}
+
+	return pb;
+}
+
+
+point* cretion_point(pb_t* pb,int numero)
+{
+	int i,taille;
+	int* data;
+	point* pt = point_alloc();
+
+	if (numero == 1)
+	{
+		data = pb->data1;
+		taille = pb->taille1;
+	}
+	else
+	{
+		data = pb->data2;
+		taille = pb->taille2;
+	}	
+
+	if (taille == 0)
+		return NULL;
+	
+	pt->x = data[0];
+	pt->y = data[1];
+
+	for(i=1;i<taille/2;i++)
+	{
+		pt->next = point_alloc();
+		pt = pt->next;
+		pt->x = data[i*2];
+		pt->y = data[i*2 +1];
+
+	}
+}
 
 
 
