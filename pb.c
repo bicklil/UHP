@@ -71,7 +71,6 @@ void send_pb(int tid, pb_t *pb)
  * d'un processus indifferent (tid == -1))
  * retourne NULL si le message n'est pas de type MSG_PB
  */
-
 pb_t *receive_pb(int tid, int *sender)
 {
 	pb_t* pb;
@@ -98,11 +97,3 @@ pb_t *receive_pb(int tid, int *sender)
 	return pb;
 	
 }
-
-
-
-
-
-
-
-

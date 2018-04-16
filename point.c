@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include "point.h"
+#include <unistd.h>
 
 /*
  * (de)allocation
@@ -45,8 +46,13 @@ void point_free(point *pts)
    pour la fonction qsort
  */
 
-static int compareX(point **i, point **j)
-{ return (*i)->x - (*j)->x; }
+static int compareX(const void * i, const void *j)
+{ 
+	point ** pi = (point **)i;
+	point ** pj = (point **)j;
+
+	return (*pi)->x - (*pj)->x; 
+}
 
 /* 
    Construit un ensemble de points d'abscisse comprise
@@ -153,10 +159,9 @@ int point_nb(point *pts)
  * partitionne une liste en deux.
  * retourne le milieu de la liste 
  */
-
 point *point_part(point *pts)
 {
-	int nb, next;
+	int next;
 	point *cur, *mid, *midpred;
 
 	midpred = NULL;

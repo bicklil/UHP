@@ -6,6 +6,8 @@
 # 
 
 CC = gcc
+CFLAGS=-g -Wall
+LDFLAGS=-lpvm3
 
 # executable directory
 #BDIR  =  $(HOME)/bin/$(PVM_ARCH)
@@ -29,10 +31,10 @@ EXEC = $(PROG:%=$(BDIR)/%)
 
 all: $(EXEC)
 	
-$(BDIR)/%: point.o %.o 
-	$(CC) -o $@ upper.o point.o
+$(BDIR)/%: point.o pb.o %.o 
+	$(CC) -o $@ upper.o point.o pb.o $(LDFLAGS)
 
-.c.o: point.h
+.c.o: point.h pb.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

@@ -32,4 +32,4 @@ extern int point_nb();
 extern point *point_part();
 extern point *point_merge_UH();
 extern void upper_hull();
-
+extern void point_print_gnuplot();
