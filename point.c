@@ -62,12 +62,12 @@ static int compareX(const void * i, const void *j)
    des abscisses.
  */
 
-point *point_random(int nbPts)/* nombre de points a` tirer */
+point * point_random(int nbPts)/* nombre de points a` tirer */
 {
 	int i,j;
 	point **pts;
 
-	pts = (point **)malloc(nbPts*sizeof(point *));
+	pts = (point ** ) malloc(nbPts*sizeof(point *));
 	for(i=0; i < nbPts; i++) {
 		pts[i] = point_alloc();
 		do {
@@ -84,7 +84,7 @@ point *point_random(int nbPts)/* nombre de points a` tirer */
 	for (i=0; i<nbPts-1; i++)
 		pts[i]->next = pts[i+1];
 
-	return (point *)*pts;
+	return (point*)*pts;
 }
 
 /*
@@ -112,16 +112,19 @@ void point_print(point *pts, int solid)
 // appele ensuite gnuplot 
 void point_print_gnuplot(point *pts, int solid)
 	/* solid: enveloppe ou non */
-{
+{	
 	FILE *fp;
+	
 	if (!solid) 
 		fp = fopen("points_gnuplot", "w");
 	else
 		fp = fopen("uh_gnuplot", "w");
+	
 	while (pts) {
 		fprintf(fp, "%d %d\n",pts->x, pts->y);
 		pts=pts->next;
 	}
+
 	fclose(fp);
 	if (solid) {
 		fp = fopen("cmd_gnuplot", "w");

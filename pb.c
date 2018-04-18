@@ -32,10 +32,12 @@ pb_t *pb_alloc()
 }
 
 void pb_free(pb_t *pb)
-{
-	if (pb->data1) free(pb->data1);
-	if (pb->data2) free(pb->data2);
-	free(pb);
+{	
+	if(pb != NULL){
+		if (pb->data1 != NULL) free(pb->data1);
+		if (pb->data2 != NULL) free(pb->data2);
+		free(pb);
+	}
 }
 
 /*

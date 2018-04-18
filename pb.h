@@ -21,3 +21,4 @@ struct liste_pb{
 };
 
 extern pb_t *pb_alloc();
+extern void pb_free(pb_t * pb);
