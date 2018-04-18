@@ -203,7 +203,18 @@ pb_t* get_pb(liste_pb* head){
 
 void range_pb(liste_pb* pbs,pb_t* pb)
 {
+	pb_t * temp;
+	if (pbs->pb == NULL)
+		pbs->pb = pb;
+		return;
+	if ( pb->fin < pbs->pb->debut && pbs->pb->type == PB_MERGE)
+	{//insere en tete
 
+	}
+	while (temp != NULL)
+	{
+
+	}
 }
 
 pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
@@ -211,9 +222,21 @@ pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 	return NULL;
 }
 
-pb_t* fusion(pb_t* pb, pb_t* pb2)
+void fusion(pb_t* pb1, pb_t* pb2)
 {
-	return NULL;
+	if (pb1->debut > pb2->debut)
+	{
+		pb_t* temp = pb1;
+		pb1 = pb2;
+		pb2 = temp;
+	}
+
+	pb1->fin = pb2->fin
+	pb1->taille2 = pb2->taille1;
+	pb1->data2 = pb2->data1;
+
+
+	return ;
 }
 
 /*
@@ -265,6 +288,7 @@ int main(int argc, char **argv){
 			}
 			temp->x = pb->data1[pb->taille1-2];
 			temp->y = pb->data1[pb->taille1-1];
+			pb_free(pb);
 			break;
 
 		}
@@ -288,7 +312,7 @@ int main(int argc, char **argv){
 				}
 				else
 				{
-					pb = fusion(pb,pb2);
+					fusion(pb,pb2);
 					send_pb(pb,sender);
 				}
 			}
