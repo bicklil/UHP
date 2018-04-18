@@ -4,14 +4,14 @@
 #  LL
 #  07/10/97
 # 
-
+BDIR = $(PWD)
 CC = gcc
-CFLAGS=-g -Wall 
+CFLAGS=-g -Wall -DEPATH=\"$(BDIR)\"
 LDFLAGS=-lpvm3
 
 # executable directory
 #BDIR  =  $(HOME)/bin/$(PVM_ARCH)
-BDIR = $(PWD)
+
 
 # Programme sequentiel
 PROG = upper

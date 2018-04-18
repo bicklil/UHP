@@ -196,7 +196,8 @@ void list_init(liste_pb ** head, point * pts){
 
 pb_t* get_pb(liste_pb* head){
 	pb_t* pb = head->pb;
-	head = head->next;
+	if (head->next != NULL)
+		head = head->next;
 	return pb;
 }
 /*
@@ -208,8 +209,8 @@ pb_t* get_pb(liste_pb* head){
 int main(int argc, char **argv){	
 	liste_pb * pbs = NULL;
 	int fils[NB_CHILD];
-	point * pts;
-	pb_t* pb;
+	point * pts,*temp;
+	pb_t* pb,*p2;
 	int nbPts,i; 
 
 	if (argc != 2) {
@@ -223,18 +224,47 @@ int main(int argc, char **argv){
 	point_print_gnuplot(pts, 0); /* affiche l'ensemble des points */
 
 	list_init(&pbs, pts);
-	printf("%p\n",&pbs);
+
 	list_print(pbs);
-	
-	pvm_spawn("/mnt/c/Users/jc leman/UHP/UHP/slave", (char**)0, 0, "",NB_CHILD,fils);
-	//pvm_spawn(EPATH "/slave", (char**)0, 0, "",NB_CHILD,fils);
+
+	pvm_spawn(EPATH "/slave", (char**)0, 0, "",NB_CHILD,fils);
 
 	for(i=0;i<NB_CHILD && pbs != NULL;i++)
 	{
-		printf("%d\n",0);
-		printf("%p\n",&pbs);
 		send_pb(fils[i],get_pb(pbs));
-		printf("%p\n",&pbs);
+	}
+	while(1)
+	{
+		pb = receive_pb(-1,sender);
+		if(pb->debut == 1 && pb->fin == nbPts)
+		{// on cree les points et on finit la boucle
+			
+		}
+		//on verifie si dans la pile il y a des pb_hul
+		if( pbs->pb == NULL)
+			pbs->pb = pb;
+		else
+		{
+			if (pbs->pb->type == PB_MERGE)
+			{
+				
+				send_pb(sender,get_pb(pbs));
+				range_pb(pbs,pb);
+			}
+			else
+			{
+				pb2 = trouve_prox(pbs,pb);
+				if (pb2 == NULL)
+				{
+					range_pb(pbs,pb);
+				}
+				else
+				{
+					pb = fusion(pb,pb2);
+					send_pb(pb,sender);
+				}
+			}
+		}
 	}
 
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
