@@ -200,6 +200,22 @@ pb_t* get_pb(liste_pb* head){
 		head = head->next;
 	return pb;
 }
+
+void range_pb(liste_pb* pbs,pb_t* pb)
+{
+
+}
+
+pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
+{
+	return NULL;
+}
+
+pb_t* fusion(pb_t* pb, pb_t* pb2)
+{
+	return NULL;
+}
+
 /*
  * upper <nb points>
  * exemple :
@@ -210,8 +226,9 @@ int main(int argc, char **argv){
 	liste_pb * pbs = NULL;
 	int fils[NB_CHILD];
 	point * pts,*temp;
-	pb_t* pb,*p2;
-	int nbPts,i; 
+	pb_t* pb,*pb2;
+	int nbPts,i,sender=0;
+	 
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <nb points>\n", *argv);
@@ -235,10 +252,21 @@ int main(int argc, char **argv){
 	}
 	while(1)
 	{
-		pb = receive_pb(-1,sender);
+		pb = receive_pb(-1,&sender);
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
-			
+			temp = pts;
+			for (i=0;i<pb->taille1-1;i++)
+			{
+				temp->x = pb->data1[2*i];
+				temp->y = pb->data1[2*1+1];
+				temp->next = point_alloc();
+				temp = temp->next;
+			}
+			temp->x = pb->data1[pb->taille1-2];
+			temp->y = pb->data1[pb->taille1-1];
+			break;
+
 		}
 		//on verifie si dans la pile il y a des pb_hul
 		if( pbs->pb == NULL)
