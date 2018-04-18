@@ -15,6 +15,7 @@
 #include "stdlib.h"
 #include "point.h"
 #include "pb.h"
+#include "pvm3.h"
 
 #define MAX_PB_SIZE 4
 
@@ -193,6 +194,11 @@ void list_init(liste_pb ** head, point * pts){
 
 }
 
+pb_t* get_pb(liste_pb* head){
+	pb_t* pb = head->pb;
+	head = head->next;
+	return pb;
+}
 /*
  * upper <nb points>
  * exemple :
@@ -201,8 +207,10 @@ void list_init(liste_pb ** head, point * pts){
  */
 int main(int argc, char **argv){	
 	liste_pb * pbs = NULL;
+	int fils[NB_CHILD];
 	point * pts;
-	int nbPts; 
+	pb_t* pb;
+	int nbPts,i; 
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <nb points>\n", *argv);
@@ -215,8 +223,19 @@ int main(int argc, char **argv){
 	point_print_gnuplot(pts, 0); /* affiche l'ensemble des points */
 
 	list_init(&pbs, pts);
-
+	printf("%p\n",&pbs);
 	list_print(pbs);
+	
+	pvm_spawn("/mnt/c/Users/jc leman/UHP/UHP/slave", (char**)0, 0, "",NB_CHILD,fils);
+	//pvm_spawn(EPATH "/slave", (char**)0, 0, "",NB_CHILD,fils);
+
+	for(i=0;i<NB_CHILD && pbs != NULL;i++)
+	{
+		printf("%d\n",0);
+		printf("%p\n",&pbs);
+		send_pb(fils[i],get_pb(pbs));
+		printf("%p\n",&pbs);
+	}
 
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */

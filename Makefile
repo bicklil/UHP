@@ -6,7 +6,7 @@
 # 
 
 CC = gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall 
 LDFLAGS=-lpvm3
 
 # executable directory
@@ -31,7 +31,7 @@ EXEC = $(PROG:%=$(BDIR)/%)
 
 all: $(EXEC)
 	
-$(BDIR)/%: point.o pb.o %.o 
+$(BDIR)/%: point.o pb.o upper.o 
 	$(CC) -o $@ upper.o point.o pb.o $(LDFLAGS)
 
 .c.o: point.h pb.h

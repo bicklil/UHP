@@ -4,6 +4,9 @@
 #define PB_HULL      	0
 #define PB_MERGE 		1
 
+#define NB_CHILD    8
+
+
 
 typedef struct st_pb {			/* probleme de tri */
     int debut, fin; // indice du premier et dernier element
