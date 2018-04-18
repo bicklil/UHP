@@ -31,11 +31,14 @@ EXEC = $(PROG:%=$(BDIR)/%)
 
 all: $(EXEC)
 	
-$(BDIR)/%: point.o pb.o upper.o 
+$(BDIR)/%: point.o pb.o upper.o slave
 	$(CC) -o $@ upper.o point.o pb.o $(LDFLAGS)
 
 .c.o: point.h pb.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+slave: point.o pb.o
+	$(CC) $(CFLAGS) point.o pb.o slave.c -o slave $(LDFLAGS)
+
 clean:
-	rm -f *.o $(EXEC) points upper_hull.pdf
+	rm -f *.o $(EXEC) points upper_hull.pdf slave
