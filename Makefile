@@ -37,7 +37,7 @@ $(BDIR)/%: point.o pb.o upper.o slave
 .c.o: point.h pb.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-slave: point.o pb.o
+slave: point.o pb.o upper.c
 	$(CC) $(CFLAGS) point.o pb.o slave.c -o slave $(LDFLAGS)
 
 clean:

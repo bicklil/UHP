@@ -249,7 +249,7 @@ void range_pb(liste_pb* pbs,pb_t* pb)
 pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 {
 	liste_pb* pt_list;
-	pb_t* pb_temp,*res;
+	pb_t*res;
 	if (pbs->pb == NULL)
 		return NULL;
 
@@ -348,7 +348,7 @@ int main(int argc, char **argv){
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
 			temp = pts;
-			for (i=0;i<pb->taille1-2;i = i*2)
+			for (i=0;i<pb->taille1-2;i = i+2)
 			{
 				temp->x = pb->data1[i];
 				temp->y = pb->data1[i+1];
@@ -369,7 +369,7 @@ int main(int argc, char **argv){
 			pbs->pb->debut = pb->debut;
 			pbs->pb->fin = pb->fin;
 			pbs->pb->data1 = malloc(sizeof(int)*pb->taille1);
-			for(i=0;i<pb->taille1-2;i = i*2)
+			for(i=0;i<pb->taille1-2;i = i+2)
 			{
 				pbs->pb->data1[i] = pb->data1[i];
 				pbs->pb->data1[i+1] = pb->data1[i+1];
