@@ -26,9 +26,7 @@ void calcul_env(pb_t* pb)
     }
     temp->x = pb->data1[pb->taille1-2];
     temp->y = pb->data1[pb->taille1-1];
-    point_print(pt1);
     pt1 = point_UH(pt1);
-    point_print(pt1);
     printf("taille pt %d\n",point_nb(pt1)); // point_nb marche pas
     pb->taille1 = (point_nb(pt1)*2);
     free(pb->data1);
