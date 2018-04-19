@@ -194,32 +194,95 @@ void list_init(liste_pb ** head, point * pts){
 
 }
 
-pb_t* get_pb(liste_pb* head){
-	pb_t* pb = head->pb;
-	if (head->next != NULL)
-		head = head->next;
-	return pb;
-}
 
 void range_pb(liste_pb* pbs,pb_t* pb)
 {
-	pb_t * temp;
+	pb_t * temp,*temp1;
+	liste_pb* pt_list;
 	if (pbs->pb == NULL)
 		pbs->pb = pb;
 		return;
-	if ( pb->fin < pbs->pb->debut && pbs->pb->type == PB_MERGE)
-	{//insere en tete
 
-	}
-	while (temp != NULL)
+	pt_list = pbs;
+	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL)
 	{
+		pt_list = pt_list->next;
+	}
+	if (pt_list->next == NULL)
+	{
+		pt_list->next = malloc(sizeof(liste_pb));
+		pt_list->next->pb = pb;
+		pt_list->next->next = NULL;
+		return ;
+	}
+	while(pb->fin > pt_list->pb->debut && pt_list->next != NULL)
+	{
+		pt_list = pt_list->next;
+	}
+	if (pt_list->next == NULL)
+	{
+		pt_list->next = malloc(sizeof(liste_pb));
+		pt_list->next->pb = pb;
+		pt_list->next->next = NULL;
+		return ;
+	}
+	else
+	{//insere en tete des pb_merge
+		temp = pt_list->pb;
+		pt_list->pb = pb;
+		while(pt_list->next != NULL)
+		{
+			temp1 = pt_list->pb;
+			pt_list->pb = temp;
+			temp = temp1;
+			pt_list = pt_list->next;
+		}
+		pt_list->next = malloc(sizeof(liste_pb));
+		pt_list->next->pb = temp;
+		pt_list->next->next = NULL;
+		return ;
 
 	}
+
 }
 
 pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 {
-	return NULL;
+	liste_pb* pt_list;
+	pb_t* pb_temp,*res;
+	if (pbs->pb == NULL)
+		return NULL;
+
+	pt_list = pbs;
+	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL)
+	{
+		pt_list = pt_list->next;
+		printf("test6\n");
+	}
+	while((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin)) && pt_list->next != NULL)
+	{
+		pt_list = pt_list->next;
+		printf("%p\n",pt_list);
+	}
+	if (pt_list->next == NULL)
+	{
+		return NULL;
+	}
+	else
+	{	
+		list_print(pbs);
+		fflush(stdout);
+		res = pt_list->pb;
+		// retour en arrière dans la liste pour enlever l'element
+		//manque surement un free
+		pt_list = pbs;
+		while(pt_list->next->pb != res)
+			pt_list = pt_list->next;
+		pt_list->next = pt_list->next->next;
+		printf("test4\n");
+		fflush(stdout);
+		return res;
+	}
 }
 
 void fusion(pb_t* pb1, pb_t* pb2)
@@ -231,7 +294,7 @@ void fusion(pb_t* pb1, pb_t* pb2)
 		pb2 = temp;
 	}
 
-	pb1->fin = pb2->fin
+	pb1->fin = pb2->fin;
 	pb1->taille2 = pb2->taille1;
 	pb1->data2 = pb2->data1;
 
@@ -257,7 +320,7 @@ int main(int argc, char **argv){
 		fprintf(stderr, "usage: %s <nb points>\n", *argv);
 		exit(-1);
 	}
-	
+	pvm_catchout(stdout);
 	nbPts = atoi(argv[1]);
 
 	pts = point_random(nbPts);
@@ -268,14 +331,20 @@ int main(int argc, char **argv){
 	list_print(pbs);
 
 	pvm_spawn(EPATH "/slave", (char**)0, 0, "",NB_CHILD,fils);
-
-	for(i=0;i<NB_CHILD && pbs != NULL;i++)
+	for(i=0;i<NB_CHILD && pbs->pb != NULL;i++)
 	{
-		send_pb(fils[i],get_pb(pbs));
+		pb = pbs->pb;
+		if (pbs->next != NULL)
+			pbs = pbs->next;
+		else{
+			pbs->pb = NULL;
+		}
+		send_pb(fils[i],pb);
 	}
 	while(1)
 	{
 		pb = receive_pb(-1,&sender);
+		printf("test2\n");
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
 			temp = pts;
@@ -292,15 +361,22 @@ int main(int argc, char **argv){
 			break;
 
 		}
-		//on verifie si dans la pile il y a des pb_hul
+		
 		if( pbs->pb == NULL)
 			pbs->pb = pb;
+			
 		else
-		{
-			if (pbs->pb->type == PB_MERGE)
+		{	//on verifie si dans la pile il y a des pb_hull
+		list_print(pbs);
+			if (pbs->pb->type == PB_HULL)
 			{
-				
-				send_pb(sender,get_pb(pbs));
+				pb2 = pbs->pb;
+				if (pbs->next != NULL)
+					pbs = pbs->next;
+				else{
+					pbs->pb = NULL;
+				}
+				send_pb(sender,pb2);
 				range_pb(pbs,pb);
 			}
 			else
@@ -318,7 +394,6 @@ int main(int argc, char **argv){
 			}
 		}
 	}
-
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */
 	point_free(pts);

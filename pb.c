@@ -55,6 +55,8 @@ void pb_print(pb_t *pb)
 void send_pb(int tid, pb_t *pb)
 {
 	pvm_initsend(PvmDataDefault);
+	pvm_pkint(&(pb->debut),1,1);
+    pvm_pkint(&(pb->fin),1,1);
 	pvm_pkint(&(pb->taille1), 1, 1);
 	pvm_pkint(&(pb->taille2), 1, 1);
 	pvm_pkint(&(pb->type), 1, 1);
