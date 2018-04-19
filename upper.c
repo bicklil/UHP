@@ -195,101 +195,6 @@ void list_init(liste_pb ** head, point * pts){
 
 }
 
-
-void range_pb(liste_pb* pbs,pb_t* pb)
-{
-	pb_t * temp,*temp1;
-	liste_pb* pt_list;
-	if (pbs->pb == NULL)
-		pbs->pb = pb;
-		return;
-
-	pt_list = pbs;
-	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL)
-	{
-		pt_list = pt_list->next;
-	}
-	if (pt_list->next == NULL)
-	{
-		pt_list->next = malloc(sizeof(liste_pb));
-		pt_list->next->pb = pb;
-		pt_list->next->next = NULL;
-		return ;
-	}
-	while(pb->fin > pt_list->pb->debut && pt_list->next != NULL)
-	{
-		pt_list = pt_list->next;
-	}
-	if (pt_list->next == NULL)
-	{
-		pt_list->next = malloc(sizeof(liste_pb));
-		pt_list->next->pb = pb;
-		pt_list->next->next = NULL;
-		return ;
-	}
-	else
-	{//insere en tete des pb_merge
-		temp = pt_list->pb;
-		pt_list->pb = pb;
-		while(pt_list->next != NULL)
-		{
-			temp1 = pt_list->pb;
-			pt_list->pb = temp;
-			temp = temp1;
-			pt_list = pt_list->next;
-		}
-		pt_list->next = malloc(sizeof(liste_pb));
-		pt_list->next->pb = temp;
-		pt_list->next->next = NULL;
-		return ;
-
-	}
-
-}
-
-pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
-{
-	liste_pb* pt_list,*tmp = NULL;
-	pb_t*res;
-	if (pbs->pb == NULL)
-		return NULL;
-
-	pt_list = pbs;
-	
-	while((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin)) && pt_list->next != NULL)
-	{	
-		tmp = pt_list;
-		pt_list = pt_list->next;
-		printf("%p\n",pt_list);
-	}
-	if (pt_list->next == NULL)
-	{
-		if(!((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin))))
-			return NULL;
-	}
-
-		
-		list_print(pbs);
-		fflush(stdout);
-		res = pt_list->pb;
-		// retour en arrière dans la liste pour enlever l'element
-		//manque surement un free
-		pt_list = pbs;
-		printf("magie\n");
-		if ( tmp == NULL)
-		{
-			pbs->pb = NULL;
-		}
-		else
-		{
-			tmp->next = tmp->next->next;
-		}
-		printf("test4\n");
-		fflush(stdout);
-		return res;
-	
-}
-
 void fusion(pb_t* pb1, pb_t* pb2)
 {
 	if (pb1->debut > pb2->debut)
@@ -303,9 +208,6 @@ void fusion(pb_t* pb1, pb_t* pb2)
 	pb1->taille2 = pb2->taille1;
 	pb1->data2 = malloc(sizeof(int)* pb1->taille2);
 	memcpy(pb1->data2 , pb2->data1,sizeof(int)* pb1->taille2);
-
-
-	return ;
 }
 
 /*
@@ -336,88 +238,20 @@ int main(int argc, char **argv){
 
 	list_print(pbs);
 
-	pvm_spawn(EPATH "/slave", (char**)0, 0, "",NB_CHILD,fils);
-	for(i=0;i<NB_CHILD && pbs->pb != NULL;i++)
+	pvm_spawn(EPATH "/slave", (char**)0, 0, "", NB_CHILD, fils);
+	
+	for(i=0;i < NB_CHILD && pbs->pb != NULL; i++)
 	{
-		pb = pbs->pb;
+		send_pb(fils[i], pbs->pb);
+
 		if (pbs->next != NULL)
 			pbs = pbs->next;
 		else{
 			pbs->pb = NULL;
 		}
-		send_pb(fils[i],pb);
 	}
-	while(1)
-	{
-		pb = receive_pb(-1,&sender);
-		printf("taille :%d\n",pb->taille1);
-		if(pb->debut == 1 && pb->fin == nbPts)
-		{// on cree les points et on finit la boucle
-			printf("taille :%d\n",pb->taille1);
-			pts = point_alloc();
-			temp = pts;
-			for (i=0;i<pb->taille1-2;i = i+2)
-			{
-				temp->x = pb->data1[i];
-				temp->y = pb->data1[i+1];
-				temp->next = point_alloc();
-				temp = temp->next;
-			}
-			temp->x = pb->data1[pb->taille1-2];
-			temp->y = pb->data1[pb->taille1-1];
-			point_print(pts);
-			pb_free(pb);
-			
-			break;
 
-		}
-		
-		if( pbs->pb == NULL)
-		{
-			pbs->pb = pb_alloc();
-			pbs->pb->taille1 = pb->taille1;
-			pbs->pb->debut = pb->debut;
-			pbs->pb->fin = pb->fin;
-			pbs->pb->data1 = malloc(sizeof(int)*(pb->taille1));
-			for(i=0;i<pb->taille1-2;i = i+2)
-			{
-				pbs->pb->data1[i] = pb->data1[i];
-				pbs->pb->data1[i+1] = pb->data1[i+1];
-			}
-			pb_free(pb);
-		}	
-		else
-		{	//on verifie si dans la pile il y a des pb_hull
-		list_print(pbs);
-			if (pbs->pb->type == PB_HULL)
-			{
-				pb2 = pbs->pb;
-				if (pbs->next != NULL)
-					pbs = pbs->next;
-				else{
-					pbs->pb = NULL;
-				}
-				send_pb(sender,pb2);
-				range_pb(pbs,pb);
-			}
-			else
-			{
-				printf("cherche voisin\n");
-				pb2 = trouve_prox(pbs,pb);
-				if (pb2 == NULL)
-				{
-					range_pb(pbs,pb);
-					printf("pas trouve\n");
-				}
-				else
-				{
-					printf("trouve\n");
-					fusion(pb,pb2);
-					send_pb(sender,pb);
-				}
-			}
-		}
-	}
+
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */
 	point_free(pts);

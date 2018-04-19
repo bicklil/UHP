@@ -6,6 +6,9 @@
  *  Definition du programme upper
  */
 
+#ifndef POINT_H
+#define POINT_H
+
 #define XMAX (1024)
 #define YMAX (1024)
 
@@ -33,3 +36,5 @@ extern point *point_part();
 extern point *point_merge_UH();
 extern void upper_hull();
 extern void point_print_gnuplot();
+
+#endif 

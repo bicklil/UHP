@@ -14,7 +14,7 @@ LDFLAGS=-lpvm3
 
 
 # Programme sequentiel
-PROG = upper
+PROG = upper slave
 
 #PVM_ROOT = /usr/share/pvm3
 #PVM_ARCH = LINUXI386
@@ -31,10 +31,10 @@ EXEC = $(PROG:%=$(BDIR)/%)
 
 all: $(EXEC)
 	
-$(BDIR)/%: point.o pb.o upper.o slave
+$(BDIR)/%: point.o pb.o upper.o slave.o
 	$(CC) -o $@ upper.o point.o pb.o $(LDFLAGS)
 
-.c.o: point.h pb.h
+.c.o: point.h pb.h slave.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 slave: point.o pb.o upper.c

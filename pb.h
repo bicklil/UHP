@@ -6,6 +6,7 @@
 
 #define NB_CHILD    8
 
+#include "point.h"
 
 
 typedef struct st_pb {			/* probleme de tri */
@@ -25,3 +26,7 @@ struct liste_pb{
 
 extern pb_t *pb_alloc();
 extern void pb_free(pb_t * pb);
+extern void send_pb(int tid,  pb_t * pb);
+extern pb_t *receive_pb(int tid, int *sender);
+extern point * pb_to_points(pb_t * pb, int data);
+extern pb_t * points_to_pb(point * pts, pb_t * pb);
