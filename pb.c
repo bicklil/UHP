@@ -34,9 +34,16 @@ pb_t *pb_alloc()
 void pb_free(pb_t *pb)
 {	
 	if(pb != NULL){
-		if (pb->data1 != NULL) free(pb->data1);
-		if (pb->data2 != NULL) free(pb->data2);
+		if (pb->data1 != NULL){
+			free(pb->data1);
+			pb->data1 = NULL;
+		}
+		if (pb->data2 != NULL){
+			free(pb->data2);
+			pb->data2 = NULL;
+		}
 		free(pb);
+		pb = NULL;
 	}
 }
 
@@ -44,8 +51,10 @@ void pb_free(pb_t *pb)
  * affichage d'un probleme
  */
 void pb_print(pb_t *pb)
-{
-
+{	
+	if(pb != NULL)
+		fprintf(stdout, "PB:\n\t Debut -- > %i Fin -- > %i \n\t Taille1 -- > %i\n\t Taille2 -- > %i\n\t" , 
+			pb->debut, pb->fin, pb->taille1, pb->taille2 );
 }
 
 /* 
@@ -65,7 +74,7 @@ void send_pb(int tid, pb_t *pb)
 	pvm_pkint(pb->data2, pb->taille2, 1);
 	pvm_send(tid, MSG_PB);
 
-	pb_free(pb);
+	//pb_free(pb);
 }
 
 /*
@@ -93,10 +102,10 @@ pb_t *receive_pb(int tid, int *sender)
 	pvm_upkint(&(pb->taille2),1,1);
 	pvm_upkint(&(pb->type),1,1);
 	pb->data1 = malloc(sizeof(int)*pb->taille1);
-	pvm_upkint(pb->data1,pb->taille1,1);
+	pvm_upkint(pb->data1, pb->taille1,1);
 	if(pb->taille2 != 0){
 		pb->data2 = malloc(sizeof(int)*pb->taille2);
-		pvm_upkint(pb->data2,pb->taille2,1);
+		pvm_upkint(pb->data2, pb->taille2,1);
 	}
 
 	return pb;

@@ -19,8 +19,8 @@ PROG = upper
 #PVM_ROOT = /usr/share/pvm3
 #PVM_ARCH = LINUXI386
 
-#PVM_ROOT = /home/commun_depinfo/enseignants/lemarchand/TPPVMM1/PvmLinux/pvm3
-#PVM_ARCH = LINUX64
+PVM_ROOT = /home/commun_depinfo/enseignants/lemarchand/TPPVMM1/PvmLinux/pvm3
+PVM_ARCH = LINUX64
 
 
 #### do not edit #####

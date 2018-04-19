@@ -248,30 +248,25 @@ void range_pb(liste_pb* pbs,pb_t* pb)
 
 pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 {
-	liste_pb* pt_list;
-	pb_t*res;
+	liste_pb * pt_list;
+	pb_t * res;
+	
 	if (pbs->pb == NULL)
 		return NULL;
 
 	pt_list = pbs;
-	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL)
-	{
-		pt_list = pt_list->next;
-		printf("test6\n");
-	}
+
 	while((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin)) && pt_list->next != NULL)
 	{
 		pt_list = pt_list->next;
-		printf("%p\n",pt_list);
 	}
+
 	if (pt_list->next == NULL)
 	{
 		return NULL;
 	}
 	else
 	{	
-		list_print(pbs);
-		fflush(stdout);
 		res = pt_list->pb;
 		// retour en arrière dans la liste pour enlever l'element
 		//manque surement un free
@@ -279,8 +274,6 @@ pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 		while(pt_list->next->pb != res)
 			pt_list = pt_list->next;
 		pt_list->next = pt_list->next->next;
-		printf("test4\n");
-		fflush(stdout);
 		return res;
 	}
 }
@@ -339,12 +332,14 @@ int main(int argc, char **argv){
 		else{
 			pbs->pb = NULL;
 		}
+
 		send_pb(fils[i],pb);
 	}
+
 	while(1)
 	{
 		pb = receive_pb(-1,&sender);
-		printf("taille :%d\n",pb->taille1);
+		
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
 			temp = pts;
@@ -400,7 +395,7 @@ int main(int argc, char **argv){
 				else
 				{
 					fusion(pb,pb2);
-					send_pb(pb,sender);
+					send_pb(sender, pb);
 				}
 			}
 		}
@@ -409,4 +404,6 @@ int main(int argc, char **argv){
 					l'enveloppe, en reliant les points */
 	point_free(pts);
 	list_free(pbs);
+
+	return 0;
 }

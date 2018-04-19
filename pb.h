@@ -25,3 +25,5 @@ struct liste_pb{
 
 extern pb_t *pb_alloc();
 extern void pb_free(pb_t * pb);
+extern void send_pb(int tid, pb_t *pb);
+extern pb_t *receive_pb(int tid, int *sender);

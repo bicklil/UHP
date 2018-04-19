@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "pb.h"
 #include "point.h"
+#include "pvm3.h"
 
 /*
  * trie un tableau de taille N
@@ -32,9 +33,8 @@ void calcul_env(pb_t* pb)
     pt1 = point_UH(pt1);
     printf("taille pt %d\n",point_nb(pt1)); // point_nb marche pas
     pb->taille1 = (point_nb(pt1)*2);
-    free(pb->data1);
 
-	pb->data1 = malloc(sizeof(int)*pb->taille1);
+	pb->data1 = realloc(pb->data1, sizeof(int)*pb->taille1);
     temp = pt1;
     for (i=0;i<pb->taille1;i = i+2)
     {
@@ -78,10 +78,9 @@ void merge_data(pb_t *pb)
 	pt1 = point_merge_UH(pt1, pt2);
 
     pb->taille1 = (point_nb(pt1)*2);
-    free(pb->data1);
 
-	pb->data1 = malloc(sizeof(int)*pb->taille1);
-    temp = pt1;
+	pb->data1 = realloc(pb->data1, sizeof(int)*pb->taille1);
+
     for (i=0;i<pb->taille1;i = i+2)
     {
         pb->data1[i] = pt1->x;
@@ -101,24 +100,17 @@ int main()
 {
 	int parent = pvm_parent();
 	int temp;
-	pb_t* pb = receive_pb(parent,&temp);
-	while( pb != NULL){
+	pb_t * pb;
+	while((pb = receive_pb(parent,&temp))!= NULL){
 		if (pb->type == PB_MERGE){
 			merge_data(pb);
-		}
-		else {
+		}else{
 			if (pb->type == PB_HULL)
 
 				calcul_env(pb);
-                fflush(stdout);
 		}
 		send_pb(parent,pb);
-		pb = receive_pb(parent,&temp);
-    return 0;
 	}
-
-
-
 
 	pvm_exit();
 	exit(0);
