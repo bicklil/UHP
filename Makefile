@@ -14,7 +14,7 @@ LDFLAGS=-lpvm3
 
 
 # Programme sequentiel
-PROG = upper slave
+PROG = upper
 
 #PVM_ROOT = /usr/share/pvm3
 #PVM_ARCH = LINUXI386
@@ -33,12 +33,10 @@ all: $(EXEC)
 	
 $(BDIR)/%: point.o pb.o upper.o slave.o
 	$(CC) -o $@ upper.o point.o pb.o $(LDFLAGS)
+	$(CC) $(CFLAGS) point.o pb.o slave.o -o slave $(LDFLAGS)
 
 .c.o: point.h pb.h slave.h
 	$(CC) $(CFLAGS) -c $< -o $@
-
-slave: point.o pb.o upper.c
-	$(CC) $(CFLAGS) point.o pb.o slave.c -o slave $(LDFLAGS)
 
 clean:
 	rm -f *.o $(EXEC) points upper_hull.pdf slave

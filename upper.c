@@ -195,6 +195,75 @@ void list_init(liste_pb ** head, point * pts){
 
 }
 
+void range_pb(liste_pb* pbs,pb_t* pb)
+{	
+	liste_pb* pt_list, * tmp, * tmp2;
+	
+	if (pbs->pb == NULL){
+		pbs->pb = pb;
+		return;
+	}
+
+	pt_list = pbs;
+	tmp = pt_list;
+
+	/* Cherche où positionner le problème dans la liste */
+	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL && pb->debut > pt_list->pb->debut){
+		pt_list = pt_list->next;
+		if(pb->debut > pt_list->pb->debut)
+			tmp = pt_list;
+	}
+
+	if (pb->debut > pt_list->pb->debut && tmp->next == NULL) /* Fin de liste et problème à placer à la suite */
+	{
+		tmp->next = malloc(sizeof(liste_pb));
+		tmp->next->pb = pb;
+		tmp->next->next = NULL;
+	}else{/* Met à jour les chaînons en respectant l'ordre de tri */
+		tmp2            = tmp->next;
+		tmp->next->pb   = pb;
+		tmp->next->next = tmp2;
+	}
+
+}
+
+pb_t* trouve_prox(liste_pb* pbs, pb_t* pb)
+{
+	liste_pb* pt_list,*tmp = NULL;
+	pb_t * res;
+
+	if (pbs->pb == NULL)
+		return NULL;
+
+	pt_list = pbs;
+	tmp     = pt_list;
+
+	// On cherche le problème qui suit celui passé en paramètre
+	while(pt_list->next != NULL){	
+		
+		// Le prochain élément est celui recherché
+		if(pt_list->next != NULL && (pb->fin + 1) == pt_list->next->pb->debut){
+			tmp = pt_list;
+		}else if(pt_list->next != NULL && (pt_list->next->pb->fin + 1) == pb->debut){
+			tmp = pt_list;
+		}
+
+		pt_list = pt_list->next;
+	}
+
+	// Le prochain élément qui est sensé être celui que l'on souhaite, ne satisfait pas les conditions
+	// de proximité des points (cas où on aurait parcouru toute la liste sans rien trouver).
+	if((pb->fin + 1) != tmp->next->pb->debut || (tmp->next->pb->fin + 1) != pb->debut)
+ 		return NULL;
+
+ 	res = tmp->next->pb;
+
+ 	if(tmp->next != NULL) /* Mise à jour des problèmes dans la liste */
+ 		tmp->next = tmp->next->next;
+
+ 	return res;
+}
+
 void fusion(pb_t* pb1, pb_t* pb2)
 {
 	if (pb1->debut > pb2->debut)
@@ -204,10 +273,11 @@ void fusion(pb_t* pb1, pb_t* pb2)
 		pb2 = temp;
 	}
 
-	pb1->fin = pb2->fin;
+	pb1->fin     = pb2->fin;	
 	pb1->taille2 = pb2->taille1;
-	pb1->data2 = malloc(sizeof(int)* pb1->taille2);
-	memcpy(pb1->data2 , pb2->data1,sizeof(int)* pb1->taille2);
+	pb1->data2   = malloc(sizeof(int) * pb1->taille2);
+	
+	memcpy(pb1->data2 , pb2->data1, sizeof(int) * pb1->taille2);
 }
 
 /*
@@ -219,9 +289,9 @@ void fusion(pb_t* pb1, pb_t* pb2)
 int main(int argc, char **argv){	
 	liste_pb * pbs = NULL;
 	int fils[NB_CHILD];
-	point * pts,*temp;
-	pb_t* pb,*pb2;
-	int nbPts,i,sender=0;
+	point * pts;
+	pb_t* pb, *pb2;
+	int nbPts, i, sender = 0;
 	 
 
 	if (argc != 2) {
@@ -240,8 +310,7 @@ int main(int argc, char **argv){
 
 	pvm_spawn(EPATH "/slave", (char**)0, 0, "", NB_CHILD, fils);
 	
-	for(i=0;i < NB_CHILD && pbs->pb != NULL; i++)
-	{
+	for(i=0;i < NB_CHILD && pbs->pb != NULL; i++){
 		send_pb(fils[i], pbs->pb);
 
 		if (pbs->next != NULL)
@@ -251,7 +320,49 @@ int main(int argc, char **argv){
 		}
 	}
 
+	while (1) {
 
+		pb = receive_pb(-1, &sender);
+
+		if (pb->debut == 1 && pb->fin == nbPts)  break;
+
+		if (pbs->pb == NULL){
+			pbs->pb = pb;
+		}
+		else{
+
+			if(pbs->pb->type == PB_HULL){
+				pb2 = pbs->pb;
+
+				if(pbs->next != NULL)
+					pbs = pbs->next;
+				else
+					pbs->pb =  NULL;
+
+				send_pb(sender, pb2);
+				range_pb(pbs, pb); /* Range le problème dans la liste */
+			}
+
+			if(pbs->pb->type == PB_MERGE){
+
+				pb2 = trouve_prox(pbs, pb); /* Cherche l'enveloppe avec laquelle fusionner */
+
+				if(pb2 == NULL){
+					range_pb(pbs, pb); /* Range le problème dans la liste */
+				}else{
+					fusion(pb, pb2);
+					send_pb(sender, pb);
+					pb_free(pb2);
+				}
+			}
+		}
+
+	}
+
+	pts = pb_to_points(pb, 1);
+
+	pvm_initsend(PvmDataDefault);
+	pvm_mcast(fils, NB_CHILD, MSG_END); /* fin esclaves */
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */
 	point_free(pts);
