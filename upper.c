@@ -11,8 +11,9 @@
  * programme principal en sequentiel
  */
 
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "point.h"
 #include "pb.h"
 #include "pvm3.h"
@@ -248,41 +249,45 @@ void range_pb(liste_pb* pbs,pb_t* pb)
 
 pb_t* trouve_prox(liste_pb* pbs,pb_t* pb)
 {
-	liste_pb* pt_list;
+	liste_pb* pt_list,*tmp = NULL;
 	pb_t*res;
 	if (pbs->pb == NULL)
 		return NULL;
 
 	pt_list = pbs;
-	while(pt_list->pb->type == PB_HULL && pt_list->next != NULL)
-	{
-		pt_list = pt_list->next;
-		printf("test6\n");
-	}
+	
 	while((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin)) && pt_list->next != NULL)
-	{
+	{	
+		tmp = pt_list;
 		pt_list = pt_list->next;
 		printf("%p\n",pt_list);
 	}
 	if (pt_list->next == NULL)
 	{
-		return NULL;
+		if(!((pb->fin != (pt_list->pb->debut+1)) && ((pb->debut+1) != (pt_list->pb->fin))))
+			return NULL;
 	}
-	else
-	{	
+
+		
 		list_print(pbs);
 		fflush(stdout);
 		res = pt_list->pb;
 		// retour en arrière dans la liste pour enlever l'element
 		//manque surement un free
 		pt_list = pbs;
-		while(pt_list->next->pb != res)
-			pt_list = pt_list->next;
-		pt_list->next = pt_list->next->next;
+		printf("magie\n");
+		if ( tmp == NULL)
+		{
+			pbs->pb = NULL;
+		}
+		else
+		{
+			tmp->next = tmp->next->next;
+		}
 		printf("test4\n");
 		fflush(stdout);
 		return res;
-	}
+	
 }
 
 void fusion(pb_t* pb1, pb_t* pb2)
@@ -296,7 +301,8 @@ void fusion(pb_t* pb1, pb_t* pb2)
 
 	pb1->fin = pb2->fin;
 	pb1->taille2 = pb2->taille1;
-	pb1->data2 = pb2->data1;
+	pb1->data2 = malloc(sizeof(int)* pb1->taille2);
+	memcpy(pb1->data2 , pb2->data1,sizeof(int)* pb1->taille2);
 
 
 	return ;
@@ -347,6 +353,8 @@ int main(int argc, char **argv){
 		printf("taille :%d\n",pb->taille1);
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
+			printf("taille :%d\n",pb->taille1);
+			pts = point_alloc();
 			temp = pts;
 			for (i=0;i<pb->taille1-2;i = i+2)
 			{
@@ -357,18 +365,20 @@ int main(int argc, char **argv){
 			}
 			temp->x = pb->data1[pb->taille1-2];
 			temp->y = pb->data1[pb->taille1-1];
+			point_print(pts);
 			pb_free(pb);
+			
 			break;
 
 		}
 		
 		if( pbs->pb == NULL)
 		{
-			pbs->pb = pb_alloc();;
+			pbs->pb = pb_alloc();
 			pbs->pb->taille1 = pb->taille1;
 			pbs->pb->debut = pb->debut;
 			pbs->pb->fin = pb->fin;
-			pbs->pb->data1 = malloc(sizeof(int)*pb->taille1);
+			pbs->pb->data1 = malloc(sizeof(int)*(pb->taille1));
 			for(i=0;i<pb->taille1-2;i = i+2)
 			{
 				pbs->pb->data1[i] = pb->data1[i];
@@ -392,15 +402,18 @@ int main(int argc, char **argv){
 			}
 			else
 			{
+				printf("cherche voisin\n");
 				pb2 = trouve_prox(pbs,pb);
 				if (pb2 == NULL)
 				{
 					range_pb(pbs,pb);
+					printf("pas trouve\n");
 				}
 				else
 				{
+					printf("trouve\n");
 					fusion(pb,pb2);
-					send_pb(pb,sender);
+					send_pb(sender,pb);
 				}
 			}
 		}

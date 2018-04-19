@@ -62,10 +62,12 @@ void send_pb(int tid, pb_t *pb)
 	pvm_pkint(&(pb->taille2), 1, 1);
 	pvm_pkint(&(pb->type), 1, 1);
 	pvm_pkint(pb->data1, pb->taille1, 1);
-	pvm_pkint(pb->data2, pb->taille2, 1);
+	if(pb->taille2 != 0){
+		pvm_pkint(pb->data2, pb->taille2, 1);
+	}
 	pvm_send(tid, MSG_PB);
 
-	pb_free(pb);
+	//pb_free(pb);
 }
 
 /*
@@ -84,6 +86,7 @@ pb_t *receive_pb(int tid, int *sender)
 	id_mes = pvm_recv(tid,-1);
 	pvm_bufinfo(id_mes,NULL,&tag_mes,&tid_mes);
 	*sender = tid_mes;
+	printf("msg_pb %d \n",tag_mes);
 	if (tag_mes != MSG_PB) return NULL;
 
 	pb = pb_alloc();
