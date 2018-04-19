@@ -344,14 +344,14 @@ int main(int argc, char **argv){
 	while(1)
 	{
 		pb = receive_pb(-1,&sender);
-		printf("test2\n");
+		printf("taille :%d\n",pb->taille1);
 		if(pb->debut == 1 && pb->fin == nbPts)
 		{// on cree les points et on finit la boucle
 			temp = pts;
-			for (i=0;i<pb->taille1-1;i++)
+			for (i=0;i<pb->taille1-2;i = i*2)
 			{
-				temp->x = pb->data1[2*i];
-				temp->y = pb->data1[2*1+1];
+				temp->x = pb->data1[i];
+				temp->y = pb->data1[i+1];
 				temp->next = point_alloc();
 				temp = temp->next;
 			}
@@ -363,8 +363,19 @@ int main(int argc, char **argv){
 		}
 		
 		if( pbs->pb == NULL)
-			pbs->pb = pb;
-			
+		{
+			pbs->pb = pb_alloc();;
+			pbs->pb->taille1 = pb->taille1;
+			pbs->pb->debut = pb->debut;
+			pbs->pb->fin = pb->fin;
+			pbs->pb->data1 = malloc(sizeof(int)*pb->taille1);
+			for(i=0;i<pb->taille1-2;i = i*2)
+			{
+				pbs->pb->data1[i] = pb->data1[i];
+				pbs->pb->data1[i+1] = pb->data1[i+1];
+			}
+			pb_free(pb);
+		}	
 		else
 		{	//on verifie si dans la pile il y a des pb_hull
 		list_print(pbs);

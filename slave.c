@@ -17,7 +17,7 @@ void calcul_env(pb_t* pb)
     pt1 = point_alloc();
     temp = pt1;
     int i;
-    for (i=0;i<pb->taille1-1;i++)
+    for (i=0;i<pb->taille1-2;i++)
     {
         temp->x = pb->data1[2*i];
         temp->y = pb->data1[2*i+1];
@@ -29,7 +29,7 @@ void calcul_env(pb_t* pb)
     point_print(pt1);
     pt1 = point_UH(pt1);
     point_print(pt1);
-
+    printf("taille pt %d\n",point_nb(pt1)); // point_nb marche pas
     pb->taille1 = (point_nb(pt1)*2);
     free(pb->data1);
 
@@ -54,7 +54,7 @@ void merge_data(pb_t *pb)
     pt1 = point_alloc();
     pt2 = point_alloc();
     temp = pt1;
-    for (i=0;i<pb->taille1-1;i++)
+    for (i=0;i<pb->taille1-2;i++)
     {
         temp->x = pb->data1[2*i];
         temp->y = pb->data1[2*i+1];
